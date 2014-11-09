@@ -1246,7 +1246,7 @@ begin
   UAmpl:=6E-6;       {Volt, Spannungs-Amplitude}
   Pulsdauer:=20;     {Pulsdauer, Anzahl der Zeitschritte von "dt"}
   Phasenshift:=000;  {Phasendifferenz zwischen oberem Umkehrpunkt und Spannungs-Impuls in Zeitschritten von "dt"}
-{ If i<=Pulsdauer then Umerk:=UAmpl;          {falls gewünscht: Start-Impuls geben}
+{ If i<=Pulsdauer then Umerk:=UAmpl;}          {falls gewünscht: Start-Impuls geben}
   If i>=Pulsdauer then        {Getriggerte Pulse im Betrieb geben}
   begin
     If (i>=iumk+Phasenshift)and(i<=iumk+Pulsdauer+Phasenshift) then {Hier wird das Trigger-Signal am oberen Umkehrpunkt festgemacht.}
@@ -1295,7 +1295,7 @@ Begin {Hauptprogramm}
   begin Writeln; Writeln('Windungszahl falsch: So kann man die Input-Spule nicht anordnen !'); Wait; Wait; Halt; end;
   If nebenturbo*ueberturbo<>Nturbo then
   begin Writeln; Writeln('Windungszahl falsch: So kann man die Turbo-Spule nicht anordnen !'); Wait; Wait; Halt; end;
-{ Spulen_anzeigen;     {Optionales Unterprogramm zur Kontrolle der Positionen.}
+{ Spulen_anzeigen; }    {Optionales Unterprogramm zur Kontrolle der Positionen.}
 { Dauermagnet-Emulation:}   Writeln;  {Magnetfeld muß nach Messung mit Hall-Sonde eingegeben werden.}
   Bsw:=1E-2; {Magnetfeld-Speicherung nach *1 von S.2 in Zentimeter-Schritten}
   {Ich emuliere hier das Magnetfeld eines 1T-Magneten durch ein Spulenpaar nach *1 von S.5}
@@ -1558,7 +1558,7 @@ Begin {Hauptprogramm}
     {Zuerst die Drehung des Magneten, Drehmoment kommt aus Spulenströmen. Vorhandene Drehmoments-Berechnung benutzen:}
 {KK}phippo:=Schnell_Drehmoment(phim)*qpoT/J;  {Upgm "Schnell_Drehmoment" ist skaliert ITurbo=1A & IInput=0A, geht linear mit dem Turbo-Strom.}
 {!! Alle Zeilen mit doppelten Ausrufezeichen dienen der zusätzlichen Aufnahme der Input-Spule.}
-{!! phippo:=Drehmoment(phim)/J;               {Vollwertige Drehmoment-Berechnung mit Turbo-Spule und Input-Spule, geht langsam.}
+{!! phippo:=Drehmoment(phim)/J;}               {Vollwertige Drehmoment-Berechnung mit Turbo-Spule und Input-Spule, geht langsam.}
 {Für phippo muß ich eine der beiden vorangehenden Alternativen verwenden, je nach dem ob nur die Turbo-Spule aktiv ist, oder auch die Input-Spule.}
 {Falls die Input-Spule auch aktiv ist, dann soll ich "schonda" von Anfang an auf "false" setzen und immer die komplette Vorbereitung durchrechnen.}
 {Alle mit "GG" kommentierten Zeilen dienen einer geschwindigkeits-proportionalen mechanischen Leistungsentnahme:}
@@ -1582,11 +1582,11 @@ Begin {Hauptprogramm}
     {Dann die Input-Spule:}     UinduzI:=0;
     qoI:=qmI; qpoI:=qpmI; qppoI:=qppmI;          {Die Input-Spule macht noch gar nichts, sie spielt jetzt noch nicht mit.}
 {Und wenn die Input-Spule doch mitspielt, muß ich die nachfolgenden fünf Zeilen zur Input-Spule aktivieren:}
-{!! qppoI:=-1/(LI*CI)*qmI-RI/LI*qpmI+U7/LI;      {Dgl. der gedämpfte Schwingung, dazu Störfunktion für Input-Spannung in den Input-Schwingkreis}
-{!! UinduzI:=-Ninput*(FlussI(phio)-FlussI(phim))/dt; {Wirkung durch die induzierte Spannung (aufgrund der Magnet-Drehung) hinzunehmen}
-{!! qppoI:=qppoI-UinduzI/LI;                     {Wirkung der induzierte Spannung auf die zweite Ableitung von q, also "qppoT")}
-{!! qpoI:=qpmI+qppoI*dt;                         {1. Integrationsschritt, nach *5 von S.6 im alten Skript bzw *1 von S.14 im neunen Skript}
-{!! qoI:=qmI+qpoI*dt;                            {2. Integrationsschritt, nach *3 & *4 von S.6 im alten Skript bzw *1 von S.14 im neunen Skript}
+{!! qppoI:=-1/(LI*CI)*qmI-RI/LI*qpmI+U7/LI;}      {Dgl. der gedämpfte Schwingung, dazu Störfunktion für Input-Spannung in den Input-Schwingkreis}
+{!! UinduzI:=-Ninput*(FlussI(phio)-FlussI(phim))/dt;} {Wirkung durch die induzierte Spannung (aufgrund der Magnet-Drehung) hinzunehmen}
+{!! qppoI:=qppoI-UinduzI/LI;}                    {Wirkung der induzierte Spannung auf die zweite Ableitung von q, also "qppoT")}
+{!! qpoI:=qpmI+qppoI*dt;}                        {1. Integrationsschritt, nach *5 von S.6 im alten Skript bzw *1 von S.14 im neunen Skript}
+{!! qoI:=qmI+qpoI*dt;}                           {2. Integrationsschritt, nach *3 & *4 von S.6 im alten Skript bzw *1 von S.14 im neunen Skript}
     Pzuf:=U7;{*qpoI}                             {Über die Input-Spannung zugeführte Leistung}
     Ezuf:=Ezuf+Pzuf*dt;                          {Zugeführte Energie  über die Input-Spannung}
 {Achtung: Die Drehmoments-Schnell-Berechnung "phippo" geht so noch nicht für Turbo-Input-Spule. Dazu muß ich noch die Ströme in die einzelnen Upgme durchreichen.}
