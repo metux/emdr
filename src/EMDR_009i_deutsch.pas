@@ -1,13 +1,8 @@
 Program EMDR_009i;
 {$APPTYPE CONSOLE}
 uses
-  Windows,
-  Messages,
   SysUtils,
   Classes,
-  Graphics,
-  Controls,
-  Forms,
   Dialogs;
 
 Const Bn=7;          {Schritt-Anzahl der Magnetfeld-Speicherung nach *2 von S.2}
