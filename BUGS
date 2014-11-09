@@ -1,0 +1,4 @@
+known bugs:
+
+    * the program needs to be called with the data file "schonda" in the current working directory
+      (otherwise it will crash w/ ugly exception)
