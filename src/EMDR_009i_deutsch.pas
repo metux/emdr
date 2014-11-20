@@ -3,7 +3,8 @@ Program EMDR_009i;
 uses
   SysUtils,
   Classes,
-  Dialogs;
+  Dialogs,
+  INIFiles;
 
 Const Bn=7;          {Schritt-Anzahl der Magnetfeld-Speicherung nach *2 von S.2}
 Const SpNmax=200;    {Maximal mögliche Anzahl der Stützpunkte der Spulen (Inupt und Turbo)}
@@ -1261,7 +1262,47 @@ begin  {Eine kleine Schalt-Hysterese muß ich einbauen:}
   Reibung_nachregeln:=merk;
 end;
 
+{ Modell-Parameter laden - originale defaults von Turtur sind hier noch hardcoded }
+Procedure Load_Settings;
+  Var INI:TINIFile;
+  Begin
+    INI        := TINIFile.Create('emdr.ini');
+
+    {Angaben in Vielfachen von Spsw} {Geometrieparameter nach Zeichnung*2 von S.1}
+    xo         := INI.ReadInteger('geometry',        'xo',0);
+    yo         := INI.ReadInteger('geometry',        'yo',6);
+    zo         := INI.ReadInteger('geometry',        'zo',5);
+
+    {Zum Lösen der Dgl.: Erster-Plot-Punkt: Anfang des Daten-Exports nach Excel}
+    PlotAnfang := INI.ReadInteger('export',          'plot.start', 0);
+
+    {Zum Lösen der Dgl.: Letzter-Plot-Punkt: Ende des Daten-Exports nach Excel}
+    PlotEnde   := INI.ReadInteger('export',          'plot.end', 100000000);
+
+    {Zum Lösen der Dgl.: Schrittweite des Daten-Exports nach Excel}
+    PlotStep   := INI.ReadInteger('export',          'plot.step', 4000);
+
+    Ninput     := INI.ReadInteger('input.spool.loops', '',0);
+
+    { Die beiden Spulen, vgl. Zeichnung *2 von S.1 :} {Die Spulen werden nach Vorgabe der Geometrieparameter automatisch vernetzt}
+    Spsw:=0.01; {Angabe in Metern: Die Spulen-Aufgliederung ist in 0.01-Meter-Schritten}
+
+  AnzP:=100000000; {Zum Lösen der Dgl.: Anzahl der tatsächlich berechneten Zeit-Schritte}
+  dt:=43E-9;   {Sekunden} {Zum Lösen der Dgl.: Dauer der Zeitschritte zur iterativen Lsg. der Dgl.}
+  Abstd:=1;    {Nur für die Vorbereitung, nicht zum Lösen der Dgl.: Jeden wievielten Punkt soll ich plotten ins Excel}
+
+  Ninput:=100;         {Zahl der Wicklungen der Input-Spule}
+  Nturbo:=9;           {Zahl der Wicklungen der Turbo-Spule}
+  nebeninput:=10;      {Windungen nebeneinander in der Input-Spule}
+  ueberinput:=10;      {Windungen uebereinander in der Input-Spule}
+  nebenturbo:=3;       {Windungen nebeneinander in der Turbo-Spule}
+  ueberturbo:=3;       {Windungen uebereinander in der Turbo-Spule}
+
+  End;
+
 Begin {Hauptprogramm}
+  Load_Settings();
+
 { Eingabe-Daten-Anmerkung: Die Input-Spannung für die Input-Spule steht als letztes Unterprogramm vor dem Beginn des Hauptprogramms.}
 { Initialisierung - Vorgabe der Werte: }        {Wir arbeiten in SI-Einheiten}
   Writeln('DFEM-Simulation des EMDR-Motors.');
@@ -1270,22 +1311,7 @@ Begin {Hauptprogramm}
   muo:=4*pi*1E-7{Vs/Am};       {Elektrische Feldkonstante}
   LiGe:=Sqrt(1/muo/epo){m/s};  Writeln('Lichtgeschwindigkeit c = ',LiGe, ' m/s');
 { Zum Lösen der Dgl. und zur Darstellung der Ergebnisse:}
-  AnzP:=100000000; {Zum Lösen der Dgl.: Anzahl der tatsächlich berechneten Zeit-Schritte}
-  dt:=43E-9;   {Sekunden} {Zum Lösen der Dgl.: Dauer der Zeitschritte zur iterativen Lsg. der Dgl.}
-  Abstd:=1;    {Nur für die Vorbereitung, nicht zum Lösen der Dgl.: Jeden wievielten Punkt soll ich plotten ins Excel}
-  PlotAnfang:=0000;    {Zum Lösen der Dgl.: Erster-Plot-Punkt: Anfang des Daten-Exports nach Excel}
-  PlotEnde:=100000000; {Zum Lösen der Dgl.: Letzter-Plot-Punkt: Ende des Daten-Exports nach Excel}
-  PlotStep:=4000;      {Zum Lösen der Dgl.: Schrittweite des Daten-Exports nach Excel}
-{ Die beiden Spulen, vgl. Zeichnung *2 von S.1 :} {Die Spulen werden nach Vorgabe der Geometrieparameter automatisch vernetzt}
-  Spsw:=0.01; {Angabe in Metern: Die Spulen-Aufgliederung ist in 0.01-Meter-Schritten}
-  xo:=0; yo:=6; zo:=5; {Angaben in Vielfachen von Spsw} {Geometrieparameter nach Zeichnung*2 von S.1}
   Spulen_zuweisen;     {Spule für den Input der Steuer-Energie}
-  Ninput:=100;         {Zahl der Wicklungen der Input-Spule}
-  Nturbo:=9;           {Zahl der Wicklungen der Turbo-Spule}
-  nebeninput:=10;      {Windungen nebeneinander in der Input-Spule}
-  ueberinput:=10;      {Windungen uebereinander in der Input-Spule}
-  nebenturbo:=3;       {Windungen nebeneinander in der Turbo-Spule}
-  ueberturbo:=3;       {Windungen uebereinander in der Turbo-Spule}
   If nebeninput*ueberinput<>Ninput then
   begin Writeln; Writeln('Windungszahl falsch: So kann man die Input-Spule nicht anordnen !'); Wait; Wait; Halt; end;
   If nebenturbo*ueberturbo<>Nturbo then
